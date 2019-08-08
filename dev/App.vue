@@ -16,8 +16,10 @@
       @on-per-page-change="onPerPageChange"
       @on-search="onSearch"
       @on-selected-rows-change="onSelectChanged"
+      @on-column-dragged="onDraggedColumn"
       :columns="columns"
       :rows="rows"
+      :draggableColumns="true"
       theme="black-rhino"
       :pagination-options="paginationOptions"
       :select-options="{
@@ -364,6 +366,11 @@ export default {
       console.log(selectedIds);
       this.selectedIds = selectedIds;
     },
+
+    onDraggedColumn(params) {
+      console.log('on-column-dragged');
+      console.log(params);
+    }
   },
   mounted() {
     // axios.get('https://jsonplaceholder.typicode.com/posts')

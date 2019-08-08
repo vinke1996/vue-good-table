@@ -315,6 +315,7 @@ import VgtPagination from './VgtPagination.vue';
 import VgtGlobalSearch from './VgtGlobalSearch.vue';
 import VgtTableHeader from './VgtTableHeader.vue';
 import VgtHeaderRow from './VgtHeaderRow.vue';
+import { Sortable, Draggable } from '@shopify/draggable';
 
 // here we load each data type module.
 import * as CoreDataTypes from './types/index';
@@ -342,7 +343,7 @@ export default {
     responsive: { default: true },
     rtl: { default: false },
     rowStyleClass: { default: null, type: [Function, String] },
-
+    draggableColumns: { default : false, type: Boolean },
     groupOptions: {
       default() {
         return {
@@ -881,6 +882,14 @@ export default {
   },
 
   methods: {
+    reorderColumns(arr, oldIndex, newIndex) {
+      const tmpColumn = arr[oldIndex];
+      arr.splice(oldIndex, 1);
+      arr.splice(newIndex, 0, tmpColumn);
+
+      return arr;
+    },
+
     getColumnForField(field) {
       for (let i = 0; i < this.typedColumns.length; i += 1) {
         if (this.typedColumns[i].field === field) return this.typedColumns[i];
@@ -1462,6 +1471,28 @@ export default {
       this.currentPerPage = this.perPage;
     }
     this.initializeSort();
+    if (!this.draggableColumns) {
+      return false;
+    }
+    this.$nextTick(() => {
+      const ref = this.fixedHeader
+          ? this.$refs['table-header-secondary']
+          : this.$refs['table-header-primary'];
+      const sortColumns = new Sortable(
+        ref.$el.firstElementChild, {
+          draggable: '.isDraggable',
+          mirror: {
+            constrainDimensions: true
+          },
+          delay: 100
+        }
+      );
+
+      sortColumns.on('sortable:stop', (e) => {
+        this.columns = this.reorderColumns(this.columns, e.oldIndex, e.newIndex);
+        this.$emit('on-column-dragged', e);
+      });
+    })
   },
 
   components: {
@@ -1469,6 +1500,7 @@ export default {
     'vgt-global-search': VgtGlobalSearch,
     'vgt-header-row': VgtHeaderRow,
     'vgt-table-header': VgtTableHeader,
+    Sortable
   },
 };
 </script>
