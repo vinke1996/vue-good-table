@@ -27453,6 +27453,10 @@ var script$6 = {
             for (var i = 0; i < _this.sorts.length; i += 1) {
               var column = _this.getColumnForField(_this.sorts[i].field);
 
+              if (typeof column == 'undefined') {
+                continue;
+              }
+
               var xvalue = _this.collect(xRow, _this.sorts[i].field);
 
               var yvalue = _this.collect(yRow, _this.sorts[i].field); //* if a custom sort function has been provided we use that
